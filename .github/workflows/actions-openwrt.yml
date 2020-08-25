@@ -1,7 +1,7 @@
 #=================================================
 # Description: Build OpenWrt using GitHub Actions
 # Author: tianzpxyz
-# https://github.com/tianzpxyz/Openwrt
+# https://github.com/tianzpxyz/Actions-openwrt-AUTO
 
 name: tianzpxyz-OpenWrt-x64-CI
 on:
