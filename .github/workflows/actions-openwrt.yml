@@ -22,7 +22,7 @@ env:
   TD: Asia/Shanghai
 
 jobs:
-  Openwrt_IPv6_Mini_Build:
+  Openwrt_X64_IPv6_Build:
     runs-on: ubuntu-latest
     steps:
      - name: Checkout
