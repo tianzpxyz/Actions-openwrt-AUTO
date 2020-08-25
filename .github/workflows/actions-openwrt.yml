@@ -102,11 +102,13 @@ jobs:
           path: ./new/package
 
      - name: Upload firmware to cowtransfer
+       if: env.UPLOAD_COWTRANSFER == 'true'
        run: |
          curl -fsSL git.io/file-transfer | sh
          ./transfer cow --block 2621440 -s -p 64 --no-progress ./new/firmware 2>&1 | tee cowtransfer.log
          echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
      - name: Upload Firmware wetransfer
+       if: env.UPLOAD_WETRANSFER == 'true'
        run: |
         curl -fsSL git.io/file-transfer | sh
         ./transfer wet -s -p 16 --no-progress ./new/firmware 2>&1 | tee wetransfer.log
