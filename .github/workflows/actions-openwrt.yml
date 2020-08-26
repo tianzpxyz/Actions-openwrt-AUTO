@@ -17,6 +17,8 @@ env:
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: tianzpxyzx64.config
+  DIY_P1_SH: diy-zb.sh
+  DIY_P2_SH: diy-up.sh
   UPLOAD_COWTRANSFER: true
   UPLOAD_WETRANSFER: false
   TD: Asia/Shanghai
@@ -41,6 +43,7 @@ jobs:
         sudo timedatectl set-timezone "$TD"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
+        
      - name: download openwrt
        working-directory: /workdir
        run: |
@@ -50,23 +53,33 @@ jobs:
          
      - name: update feeds
        run: |
-         curl -fsSL  https://raw.githubusercontent.com/tianzpxyz/other/master/patch/feeds.conf.default/$FEEDS_CONF >> openwrt/feeds.conf.default
-         cd openwrt  && ./scripts/feeds update -a
+          cd openwrt
+          curl -fsSL https://raw.githubusercontent.com/tianzpxyz/other/master/patch/script/$DIY_P1_SH | sh 
+          ./scripts/feeds update -a
      - name: update Packages
        run: |
         cd openwrt
-        curl -fsSL https://raw.githubusercontent.com/tianzpxyz/other/master/patch/script/update_package.sh | sh
+        curl -fsSL https://raw.githubusercontent.com/tianzpxyz/other/master/patch/script/$DIY_P2_SH | sh
         ./scripts/feeds install -a
+        
      - name: Make Download
        run: |
-        curl -fsSL https://raw.githubusercontent.com/tianzpxyz/other/master/patch/x86-64/$CONFIG_FILE > openwrt/.config
         cd openwrt
+        curl -fsSL https://raw.githubusercontent.com/tianzpxyz/other/master/patch/x86-64/$CONFIG_FILE > .config
         make defconfig
         make -j8 download
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         # 修改LAN的IP地址
         # sed -i 's/192.168.1.1/192.168.9.1/g' package/base-files/files/bin/config_generate
+        
+     - name: Toolchain Openwrt
+       run: |
+          cd openwrt
+          echo -e "$(nproc) thread build."
+          let make_process=$(nproc)+1
+          make toolchain/install -j${make_process}
+          
      - name: Compile Openwrt
        run: |
           cd openwrt
